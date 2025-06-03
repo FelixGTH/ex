@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "compile",
+            "command": "g++",
+            "args": [
+                "-std=c++20",
+                "-g",
+                "${file}",
+                "-o",
+                "${workspaceFolder}/result.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": "build" 
+        },
+        {
+            "type": "shell",
+            "label": "run",
+            "command": "${workspaceFolder}/result.exe",
+            "group": "build"
+        },
+        {
+            "type": "shell",
+            "label": "compile and run",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "compile",
+                "run"
+            ],
+            "group": "build"
+        }
+    ]
+}
