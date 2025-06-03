@@ -22,37 +22,37 @@ struct Position {
     int abs_delta_x = abs(delta_x);
     int abs_delta_y = abs(delta_y);
 
+    if (delta_x || delta_y) {
+      if (abs_delta_x > abs_delta_y) {
+        if (delta_x > 0 ) {
 
-    if (abs_delta_x > abs_delta_y) {
-      if (delta_x > 0 ) {
+          x--;
 
-        x--;
+        } else {
+          x++;
+        }
 
-      } else {
-        x++;
-      }
+      } else if (abs_delta_x < abs_delta_y) {
+        if (delta_y > 0 ) {
 
-    } else if (abs_delta_x < abs_delta_y) {
-      if (delta_y > 0 ) {
+          y--;
 
-        y--;
+        } else {
 
-      } else {
+          y++;
 
-        y++;
-
-      }
-
-    } else {
-      if (delta_x > 0 ) {
-
-        x--;
+        }
 
       } else {
-        x++;
+        if (delta_x > 0 ) {
+
+          x--;
+
+        } else {
+          x++;
+        }
       }
     }
-
-  }
+}
 
 };
