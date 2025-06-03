@@ -1,0 +1,118 @@
+# Установка cmake через MSYS2
+# pacman -S mingw-w64-x86_64-cmake
+# pacman -S mingw-w64-x86_64-make
+
+# Если нужно скачать исходники SDL:
+# https://github.com/libsdl-org/SDL/releases
+
+# Шпаргалка по версиям библиотек:
+# x86_64 — 64 бита.
+# i686   — 32 бита.
+
+
+# Установка вводных переменных:
+
+set(VAR_PROJECT_NAME "Proj" CACHE STRING "Название проекта")
+
+set(SDL2_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libs/SDL2") 
+
+
+# Версия cmake:
+cmake_minimum_required(VERSION 3.12)
+
+# Название проекта:
+project(${VAR_PROJECT_NAME})
+
+# Используемый стандарт C++:
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Флаги компиляции:
+set(
+  CMAKE_CXX_FLAGS 
+  "${CMAKE_CXX_FLAGS} -O3 -g" # -mwindows — скрыть терминал для релиза.        
+#    ^                ^    ^
+#    |                |    |
+#    |                |    отладочная информация включена
+#    |                |
+#    |                высокая оптимизация
+#    |                
+#    новые флаги добавляются к старым
+
+)
+
+
+# Экспорт команд компиляции для clangd:
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Статическая линковка:
+add_definitions(-DSDL_STATIC)
+
+
+# Исполняемый файл main.cpp:
+add_executable(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp")
+
+# Исполняемые файлы все в директории src:
+# file(GLOB_RECURSE VAR_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+# add_executable(${PROJECT_NAME} ${VAR_EXECUTABLE})
+
+
+
+# Поиск библиотеки SDL2main:
+find_library(
+  SDL2MAIN_LIBRARY 
+  NAMES sdl2main 
+  PATHS ${SDL2_LIB_PATH}/lib 
+  NO_DEFAULT_PATH 
+  REQUIRED
+)
+
+# Поиск библиотеки SDL2:
+find_library(
+  SDL2_LIBRARY 
+  NAMES sdl2 
+  PATHS ${SDL2_LIB_PATH}/lib 
+  NO_DEFAULT_PATH 
+  REQUIRED
+)
+
+# Линковка библиотек:
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+  
+  mingw32
+  
+  ${SDL2MAIN_LIBRARY}
+  ${SDL2_LIBRARY}
+  
+  # Проект конфигурирован конкретно под винду
+  # и для статической линковки SDL2. 
+  # Далее библиотеки винды, нужные SDL2 
+  # для статической компиляции:
+  
+  dxguid     # — GUID-ы для DirectX. Нужна для взаимодействия с COM-объектами DirectX.
+  user32     # — WinAPI: окна, сообщения, элементы интерфейса.
+  gdi32      # — WinAPI: графика (рисование фигур, шрифты).
+  winmm      # — Windows Multimedia API (таймеры, аудио).
+  imm32      # — Input Method Manager (поддержка многоязычного ввода).
+  ole32      # — OLE (Object Linking and Embedding) — для работы с COM-объектами (например, буфер обмена).
+  oleaut32   # — Расширение функционала ole32.
+  shell32    # — Интерфейс оболочки Windows (работа с файлами, диалогами).
+  version    # — Получение информации о версиях файлов.
+  uuid       # — Генерация UUID.
+  setupapi   # — Установка и настройка устройств (SetupDi* функции, например, для HID-устройств).
+  cfgmgr32   # — Configuration Manager API (работа с древом устройств, CM_* функции).
+  hid        # — Human Interface Devices (HID) — взаимодействие с устройствами ввода (мыши, клавиатуры, джойстики).
+  advapi32   # — Расширенные функции Windows: реестр, безопасность, службы.
+
+  # dinput8    # — DirectInput 8 (для работы с геймпадами и устройствами ввода).
+  # dxerr8     # — Обработка ошибок DirectX (устаревшая, используется в некоторых частях SDL2).
+)
+
+
+# Пути include:
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# include_directories(${SDL2_LIB_PATH}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${SDL2_LIB_PATH}/include"
+)
